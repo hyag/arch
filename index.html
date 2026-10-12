@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ARCH — Architecture & Interior Gallery</title>
+<meta name="description" content="建築・インテリアのギャラリー。厳選された空間の写真をお楽しみください。">
+<meta name="color-scheme" content="light dark">
+<style>
+:root {
+  --accent:        #8b7355;
+  --accent-strong: #6b5535;
+  --accent-soft:   rgba(139,115,85,.10);
+  --bg:            #f8f6f3;
+  --bg-elevated:   #ffffff;
+  --border:        #e2ddd6;
+  --text:          #1a1814;
+  --text-muted:    #7a7268;
+  --radius:        12px;
+  --shadow:        0 1px 2px rgba(20,18,14,.04), 0 8px 24px rgba(20,18,14,.06);
+  --maxw:          1100px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --accent:        #c4a97a;
+    --accent-strong: #d4b98a;
+    --accent-soft:   rgba(196,169,122,.12);
+    --bg:            #111009;
+    --bg-elevated:   #1a1814;
+    --border:        #2a2620;
+    --text:          #f0ece6;
+    --text-muted:    #9a9288;
+    --shadow:        0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+  }
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI",
+               "Noto Sans JP", system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ヘッダー */
+header {
+  text-align: center;
+  padding: clamp(3rem, 10vw, 6rem) 1.5rem clamp(2rem, 6vw, 3rem);
+  border-bottom: 1px solid var(--border);
+}
+header h1 {
+  margin: 0;
+  font-size: clamp(2.4rem, 8vw, 4rem);
+  font-weight: 700;
+  letter-spacing: .15em;
+  color: var(--text);
+}
+header p {
+  margin: .6rem 0 0;
+  font-size: .85rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ギャラリーグリッド */
+.gallery {
+  width: min(100% - 3rem, var(--maxw));
+  margin: clamp(2rem, 6vw, 3.5rem) auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .gallery { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .gallery { grid-template-columns: 1fr; }
+}
+
+/* ギャラリーアイテム */
+.gallery-item {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow);
+  aspect-ratio: 4/3;
+}
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .4s ease;
+}
+.gallery-item:hover img {
+  transform: scale(1.05);
+}
+.gallery-item .overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.7) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity .3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 1.2rem;
+}
+.gallery-item:hover .overlay {
+  opacity: 1;
+}
+.overlay h3 {
+  margin: 0 0 .2rem;
+  font-size: .95rem;
+  font-weight: 600;
+  color: #fff;
+}
+.overlay p {
+  margin: 0;
+  font-size: .78rem;
+  color: rgba(255,255,255,.8);
+}
+
+/* モーダル */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.92);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+.modal.active {
+  display: flex;
+}
+.modal-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+.modal-content img {
+  max-width: 90vw;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 6px;
+  display: block;
+}
+.modal-caption {
+  text-align: center;
+  margin-top: .8rem;
+  color: rgba(255,255,255,.8);
+  font-size: .85rem;
+}
+.modal-close {
+  position: absolute;
+  top: -2.5rem;
+  right: 0;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.8rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: .3rem;
+}
+.modal-prev,
+.modal-next {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,.15);
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: .8rem 1rem;
+  border-radius: 6px;
+  transition: background .2s;
+  backdrop-filter: blur(4px);
+}
+.modal-prev:hover,
+.modal-next:hover {
+  background: rgba(255,255,255,.25);
+}
+.modal-prev { left: 1rem; }
+.modal-next { right: 1rem; }
+
+/* フッター */
+footer {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: .78rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gallery-item img { transition: none; }
+  .gallery-item .overlay { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>ARCH</h1>
+  <p>Architecture &amp; Interior Gallery</p>
+</header>
+
+<main>
+  <div class="gallery">
+    <div class="gallery-item" data-index="0">
+      <img src="images/photo1.jpg" alt="夜景モダン住宅" loading="lazy">
+      <div class="overlay">
+        <h3>夜景モダン住宅</h3>
+        <p>都市型モダンデザイン。夜の灯りが映える外観。</p>
+      </div>
+    </div>
+    <div class="gallery-item" data-index="1">
+      <img src="images/photo2.jpg" alt="沖縄スタイル住宅" loading="lazy">
+      <div class="overlay">
+        <h3>沖縄スタイル住宅</h3>
+        <p>琉球石灰岩と緑が調和した沖縄らしい外観。</p>
+      </div>
+    </div>
+    <div class="gallery-item" data-index="2">
+      <img src="images/photo3.jpg" alt="木の和モダン住宅" loading="lazy">
+      <div class="overlay">
+        <h3>木の和モダン住宅</h3>
+        <p>木のぬくもりと現代デザインが融合した住宅。</p>
+      </div>
+    </div>
+    <div class="gallery-item" data-index="3">
+      <img src="images/photo4.jpg" alt="ミニマルリビング" loading="lazy">
+      <div class="overlay">
+        <h3>ミニマルリビング</h3>
+        <p>自然素材と静けさを大切にした居住空間。</p>
+      </div>
+    </div>
+    <div class="gallery-item" data-index="4">
+      <img src="images/photo5.jpg" alt="モダンキッチン" loading="lazy">
+      <div class="overlay">
+        <h3>モダンキッチン</h3>
+        <p>白を基調とした清潔感あふれるキッチン。</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- モーダル -->
+<div class="modal" id="modal" role="dialog" aria-modal="true">
+  <div class="modal-content">
+    <button class="modal-close" id="modalClose" aria-label="閉じる">×</button>
+    <img id="modalImg" src="" alt="">
+    <p class="modal-caption" id="modalCaption"></p>
+  </div>
+  <button class="modal-prev" id="modalPrev" aria-label="前へ">&#8592;</button>
+  <button class="modal-next" id="modalNext" aria-label="次へ">&#8594;</button>
+</div>
+
+<footer>
+  <p>&copy; 2026 ARCH</p>
+</footer>
+
+<script>
+const photos = [
+  { src: 'images/photo1.jpg', title: '夜景モダン住宅', desc: '都市型モダンデザイン。夜の灯りが映える外観。' },
+  { src: 'images/photo2.jpg', title: '沖縄スタイル住宅', desc: '琉球石灰岩と緑が調和した沖縄らしい外観。' },
+  { src: 'images/photo3.jpg', title: '木の和モダン住宅', desc: '木のぬくもりと現代デザインが融合した住宅。' },
+  { src: 'images/photo4.jpg', title: 'ミニマルリビング', desc: '自然素材と静けさを大切にした居住空間。' },
+  { src: 'images/photo5.jpg', title: 'モダンキッチン', desc: '白を基調とした清潔感あふれるキッチン。' },
+];
+
+let current = 0;
+const modal    = document.getElementById('modal');
+const modalImg = document.getElementById('modalImg');
+const modalCap = document.getElementById('modalCaption');
+
+function openModal(index) {
+  current = index;
+  modalImg.src = photos[current].src;
+  modalImg.alt = photos[current].title;
+  modalCap.textContent = photos[current].title + ' — ' + photos[current].desc;
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  modal.classList.remove('active');
+  document.body.style.overflow = '';
+}
+function prevPhoto() {
+  current = (current - 1 + photos.length) % photos.length;
+  modalImg.src = photos[current].src;
+  modalImg.alt = photos[current].title;
+  modalCap.textContent = photos[current].title + ' — ' + photos[current].desc;
+}
+function nextPhoto() {
+  current = (current + 1) % photos.length;
+  modalImg.src = photos[current].src;
+  modalImg.alt = photos[current].title;
+  modalCap.textContent = photos[current].title + ' — ' + photos[current].desc;
+}
+
+document.querySelectorAll('.gallery-item').forEach(item => {
+  item.addEventListener('click', () => openModal(Number(item.dataset.index)));
+});
+document.getElementById('modalClose').addEventListener('click', closeModal);
+document.getElementById('modalPrev').addEventListener('click', prevPhoto);
+document.getElementById('modalNext').addEventListener('click', nextPhoto);
+modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+document.addEventListener('keydown', e => {
+  if (!modal.classList.contains('active')) return;
+  if (e.key === 'Escape')      closeModal();
+  if (e.key === 'ArrowLeft')   prevPhoto();
+  if (e.key === 'ArrowRight')  nextPhoto();
+});
+
+// スワイプ対応
+let touchStartX = 0;
+modal.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
+modal.addEventListener('touchend', e => {
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) { diff > 0 ? nextPhoto() : prevPhoto(); }
+});
+</script>
+</body>
+</html>
